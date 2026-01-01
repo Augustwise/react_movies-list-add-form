@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { getRandomDigits, TextField } from '../TextField';
+import { TextField } from '../TextField';
 import { Movie } from '../../types/Movie';
 
 function normalize(value: string) {
@@ -58,13 +58,27 @@ function validateRequiredUrl(url: string, fieldLabel: string) {
   return '';
 }
 
+function validateImdbId(imdbId: string) {
+  const normalized = normalize(imdbId);
+
+  if (!normalized) {
+    return 'Imdb ID is required';
+  }
+
+  if (normalized.length < 2 || normalized.length > 40) {
+    return 'Imdb ID must be between 2 and 40 characters';
+  }
+
+  return '';
+}
+
 function createEmptyMovieForm() {
   return {
     title: '',
     description: '',
     imgUrl: '',
     imdbUrl: '',
-    imdbId: getRandomDigits(),
+    imdbId: '',
   };
 }
 
@@ -81,6 +95,7 @@ export const NewMovie: React.FC<Props> = ({ onAdd }) => {
     description: validateDescription(form.description),
     imgUrl: validateRequiredUrl(form.imgUrl, 'Image URL'),
     imdbUrl: validateRequiredUrl(form.imdbUrl, 'Imdb URL'),
+    imdbId: validateImdbId(form.imdbId),
   };
   const isFormValid = Object.values(errors).every(message => !message);
 
@@ -100,7 +115,7 @@ export const NewMovie: React.FC<Props> = ({ onAdd }) => {
           description: normalize(form.description),
           imgUrl: normalize(form.imgUrl),
           imdbUrl: normalize(form.imdbUrl),
-          imdbId: form.imdbId,
+          imdbId: normalize(form.imdbId),
         });
 
         setForm(createEmptyMovieForm());
@@ -112,7 +127,7 @@ export const NewMovie: React.FC<Props> = ({ onAdd }) => {
       <TextField
         name="title"
         label="Title"
-        defaultValue=""
+        value={form.title}
         required
         error={errors.title}
         onChange={title => setForm(prev => ({ ...prev, title }))}
@@ -121,7 +136,7 @@ export const NewMovie: React.FC<Props> = ({ onAdd }) => {
       <TextField
         name="description"
         label="Description"
-        defaultValue=""
+        value={form.description}
         error={errors.description}
         onChange={description => setForm(prev => ({ ...prev, description }))}
       />
@@ -129,7 +144,7 @@ export const NewMovie: React.FC<Props> = ({ onAdd }) => {
       <TextField
         name="imgUrl"
         label="Image URL"
-        defaultValue=""
+        value={form.imgUrl}
         required
         error={errors.imgUrl}
         onChange={imgUrl => setForm(prev => ({ ...prev, imgUrl }))}
@@ -138,7 +153,7 @@ export const NewMovie: React.FC<Props> = ({ onAdd }) => {
       <TextField
         name="imdbUrl"
         label="Imdb URL"
-        defaultValue=""
+        value={form.imdbUrl}
         required
         error={errors.imdbUrl}
         onChange={imdbUrl => setForm(prev => ({ ...prev, imdbUrl }))}
@@ -147,8 +162,10 @@ export const NewMovie: React.FC<Props> = ({ onAdd }) => {
       <TextField
         name="imdbId"
         label="Imdb ID"
-        defaultValue={form.imdbId}
-        readOnly
+        value={form.imdbId}
+        required
+        error={errors.imdbId}
+        onChange={imdbId => setForm(prev => ({ ...prev, imdbId }))}
       />
 
       <div className="field is-grouped">
