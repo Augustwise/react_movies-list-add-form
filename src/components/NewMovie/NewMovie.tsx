@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { getRandomDigits, TextField } from '../TextField';
+import { Movie } from '../../types/Movie';
 
 function normalize(value: string) {
   return value.trim();
@@ -67,7 +68,11 @@ function createEmptyMovieForm() {
   };
 }
 
-export const NewMovie = () => {
+type Props = {
+  onAdd: (movie: Movie) => void;
+};
+
+export const NewMovie: React.FC<Props> = ({ onAdd }) => {
   const [count, setCount] = useState(0);
   const [form, setForm] = useState(createEmptyMovieForm);
 
@@ -89,6 +94,14 @@ export const NewMovie = () => {
         if (!isFormValid) {
           return;
         }
+
+        onAdd({
+          title: normalize(form.title),
+          description: normalize(form.description),
+          imgUrl: normalize(form.imgUrl),
+          imdbUrl: normalize(form.imdbUrl),
+          imdbId: form.imdbId,
+        });
 
         setForm(createEmptyMovieForm());
         setCount(prev => prev + 1);
